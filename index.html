@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Abrar Zawad Safwan — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:        #080808;
+  --bg2:       #0f0f0f;
+  --card:      #111111;
+  --card2:     #161616;
+  --gold:      #d4a843;
+  --gold-lt:   #f0cc78;
+  --gold-dk:   #a07828;
+  --gold-dim:  rgba(212,168,67,0.15);
+  --gold-glow: rgba(212,168,67,0.25);
+  --border:    rgba(212,168,67,0.18);
+  --border-s:  rgba(212,168,67,0.45);
+  --text:      #f0ece4;
+  --muted:     #7a7060;
+  --muted2:    #504840;
+  --serif:  'Cormorant Garamond',Georgia,serif;
+  --sans:   'DM Sans',sans-serif;
+  --mono:   'Space Mono',monospace;
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* ── Canvas bg ── */
+#bg-canvas{
+  position:fixed;inset:0;
+  pointer-events:none;z-index:0;
+}
+
+/* ── All content above canvas ── */
+nav,#hero,section,.trophy-banner,.dw,footer,.gear-widget{
+  position:relative;z-index:10;
+}
+
+/* ── Custom cursor ── */
+.cursor{
+  width:10px;height:10px;
+  background:var(--gold);border-radius:50%;
+  position:fixed;top:0;left:0;
+  pointer-events:none;z-index:9999;
+  transition:width .15s,height .15s;
+}
+.cursor-ring{
+  width:32px;height:32px;
+  border:1.5px solid var(--gold);border-radius:50%;
+  position:fixed;top:0;left:0;
+  pointer-events:none;z-index:9998;
+  opacity:0.5;
+  transition:width .2s,height .2s,border-color .2s;
+}
+
+/* ══════════════════════════════
+   GEAR SHIFTER WIDGET
+══════════════════════════════ */
+.gear-widget{
+  position:fixed;
+  top:50%;right:2.5rem;
+  transform:translateY(-50%);
+  z-index:500;
+  display:flex;flex-direction:column;align-items:center;
+  gap:0;
+  user-select:none;
+}
+
+/* The gate — H-pattern lines */
+.gear-gate{
+  position:relative;
+  width:72px;
+  /* tall enough for all gear nodes */
+}
+
+/* Horizontal crossbar */
+.gear-gate::before{
+  content:'';
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:2px;
+  height:100%;
+  background:linear-gradient(180deg,transparent,var(--border-s),var(--border-s),transparent);
+}
+.gear-gate::after{
+  content:'';
+  position:absolute;
+  top:50%;left:0;right:0;
+  height:1.5px;
+  background:linear-gradient(90deg,transparent,var(--border-s),transparent);
+  transform:translateY(-50%);
+}
+
+/* individual gear position */
+.gear-pos{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 4px;
+  cursor:pointer;
+  z-index:2;
+}
+/* left side gears (1,3,5) */
+.gear-pos.left{ flex-direction:row-reverse; }
+/* right side gears (2,4,6) */
+.gear-pos.right{ flex-direction:row; }
+
+/* knob dot */
+.gear-dot{
+  width:22px;height:22px;
+  border-radius:50%;
+  border:1.5px solid var(--border-s);
+  background:var(--card);
+  display:flex;align-items:center;justify-content:center;
+  transition:all .25s;
+  flex-shrink:0;
+  box-shadow:0 0 0 0 var(--gold-glow);
+}
+.gear-dot span{
+  font-family:var(--mono);
+  font-size:0.58rem;
+  color:var(--muted);
+  font-weight:700;
+  transition:color .25s;
+}
+.gear-label{
+  font-family:var(--mono);
+  font-size:0.52rem;
+  color:var(--muted2);
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  white-space:nowrap;
+  transition:color .25s;
+  line-height:1;
+}
+
+.gear-pos:hover .gear-dot,
+.gear-pos.active .gear-dot{
+  background:var(--gold);
+  border-color:var(--gold-lt);
+  box-shadow:0 0 14px var(--gold-glow);
+}
+.gear-pos:hover .gear-dot span,
+.gear-pos.active .gear-dot span{color:#080808;font-weight:700}
+.gear-pos:hover .gear-label,
+.gear-pos.active .gear-label{color:var(--gold);}
+
+/* The shifter stick — animated indicator */
+.gear-stick{
+  position:absolute;
+  left:50%;
+  width:14px;height:14px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,var(--gold-lt),var(--gold-dk));
+  box-shadow:0 0 12px var(--gold-glow),0 2px 6px rgba(0,0,0,0.6);
+  border:1.5px solid var(--gold);
+  z-index:10;
+  transition:top .45s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:none;
+}
+/* shine dot */
+.gear-stick::after{
+  content:'';
+  position:absolute;
+  top:2px;left:3px;
+  width:4px;height:4px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.55);
+}
+
+/* Gear label for R */
+.gear-r{ margin-top:4px; border-top:1px solid var(--border); }
+
+/* ── Nav ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1.25rem 4rem;
+  background:rgba(8,8,8,0.9);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:var(--serif);
+  font-size:1.3rem;font-weight:600;
+  color:var(--text);letter-spacing:0.5px;
+}
+.nav-logo span{color:var(--gold);}
+
+/* hide default nav links — gear replaces them */
+.nav-links{display:none;}
+
+/* ── Hero ── */
+#hero{
+  min-height:100vh;
+  display:flex;align-items:center;
+  padding:9rem 4rem 5rem;
+  overflow:hidden;
+}
+.hero-glow{
+  position:absolute;
+  width:700px;height:700px;
+  background:radial-gradient(circle,var(--gold-dim) 0%,transparent 65%);
+  top:50%;left:55%;
+  transform:translate(-50%,-50%);
+  pointer-events:none;z-index:2;
+  animation:hglow 7s ease-in-out infinite;
+}
+@keyframes hglow{
+  0%,100%{opacity:.7;transform:translate(-50%,-50%) scale(1);}
+  50%{opacity:1;transform:translate(-50%,-50%) scale(1.12);}
+}
+.hero-content{position:relative;z-index:3;max-width:860px;}
+.hero-eyebrow{
+  font-family:var(--mono);font-size:0.68rem;
+  color:var(--gold);letter-spacing:4px;text-transform:uppercase;
+  margin-bottom:1.5rem;
+  display:flex;align-items:center;gap:1rem;
+  opacity:0;animation:fadeUp .8s .2s forwards;
+}
+.hero-eyebrow::before{
+  content:'';display:inline-block;
+  width:40px;height:1px;
+  background:linear-gradient(90deg,var(--gold),transparent);
+}
+h1{
+  font-family:var(--serif);
+  font-size:clamp(3.5rem,9vw,8.5rem);
+  font-weight:300;
+  line-height:.9;letter-spacing:-2px;
+  color:var(--text);
+  margin-bottom:1.75rem;
+  opacity:0;animation:fadeUp .8s .35s forwards;
+}
+.gold-word{
+  font-weight:700;
+  background:linear-gradient(135deg,var(--gold-dk) 0%,var(--gold-lt) 50%,var(--gold-dk) 100%);
+  background-size:200% 200%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:gshift 5s ease-in-out infinite;
+}
+@keyframes gshift{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
+.italic-word{font-style:italic;font-weight:300;}
+.hero-desc{
+  font-size:.97rem;color:var(--muted);line-height:1.9;
+  max-width:520px;margin-bottom:2.5rem;font-weight:300;
+  opacity:0;animation:fadeUp .8s .5s forwards;
+}
+.hero-badges{
+  display:flex;flex-wrap:wrap;gap:.65rem;margin-bottom:3rem;
+  opacity:0;animation:fadeUp .8s .65s forwards;
+}
+.badge{
+  font-family:var(--mono);font-size:.62rem;
+  padding:.4rem 1rem;border:1px solid;
+  letter-spacing:1.5px;text-transform:uppercase;
+}
+.badge-gold{border-color:var(--gold);color:var(--gold);background:rgba(212,168,67,.07);}
+.badge-dim{border-color:var(--muted2);color:var(--muted);}
+.hero-cta{
+  display:flex;gap:1rem;flex-wrap:wrap;
+  opacity:0;animation:fadeUp .8s .8s forwards;
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.btn{
+  font-family:var(--mono);font-size:.7rem;
+  padding:.9rem 2.2rem;letter-spacing:2px;text-transform:uppercase;
+  text-decoration:none;transition:all .25s;
+  display:inline-block;cursor:pointer;border:none;
+}
+.btn-gold{
+  background:linear-gradient(135deg,var(--gold-dk) 0%,var(--gold-lt) 50%,var(--gold-dk) 100%);
+  background-size:200% 200%;
+  color:#080808;font-weight:700;
+  box-shadow:0 4px 22px rgba(212,168,67,.35);
+}
+.btn-gold:hover{background-position:right center;transform:translateY(-2px);box-shadow:0 8px 34px rgba(212,168,67,.45);}
+.btn-outline{
+  border:1.5px solid var(--border-s);color:var(--gold);background:transparent;
+}
+.btn-outline:hover{background:var(--gold-dim);border-color:var(--gold);transform:translateY(-2px);}
+
+/* ── Trophy Banner ── */
+.trophy-banner{
+  display:flex;align-items:center;gap:1.5rem;
+  padding:1.5rem 2.5rem;margin:0 4rem;
+  background:linear-gradient(135deg,rgba(212,168,67,.07),rgba(240,204,120,.1));
+  border:1px solid var(--border-s);border-left:3px solid var(--gold);
+  position:relative;overflow:hidden;
+}
+.trophy-banner::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(212,168,67,.08),transparent);
+  animation:shimmer 4s ease-in-out infinite;
+}
+@keyframes shimmer{0%,100%{transform:translateX(-100%);}50%{transform:translateX(100%);}}
+.trophy-icon{font-size:2rem;flex-shrink:0;}
+.trophy-text h3{
+  font-family:var(--serif);font-size:1.15rem;font-weight:600;color:var(--gold);
+}
+.trophy-text p{
+  font-family:var(--mono);font-size:.68rem;color:var(--muted);
+  margin-top:.2rem;line-height:1.6;
+}
+
+/* ── Divider ── */
+.dw{padding:0 4rem;margin-top:4rem;}
+.div-line{
+  height:1px;
+  background:linear-gradient(90deg,transparent,var(--border-s) 30%,var(--border-s) 70%,transparent);
+}
+
+/* ── Sections ── */
+section{padding:6rem 4rem;max-width:1200px;margin:0 auto;}
+.section-label{
+  font-family:var(--mono);font-size:.62rem;
+  color:var(--gold);letter-spacing:4px;text-transform:uppercase;margin-bottom:.5rem;
+}
+.section-title{
+  font-family:var(--serif);
+  font-size:clamp(2rem,4vw,3.2rem);font-weight:300;
+  letter-spacing:-1px;color:var(--text);margin-bottom:3rem;line-height:1;
+}
+.section-title strong{font-weight:700;color:var(--gold);}
+
+/* ── Skills ── */
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.25rem;}
+.skill-card{
+  background:var(--card);border:1px solid var(--border);
+  padding:1.75rem;
+  transition:border-color .25s,transform .25s,box-shadow .25s;
+  position:relative;overflow:hidden;
+}
+.skill-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--gold-dk),var(--gold-lt));
+  transform:scaleX(0);transform-origin:left;transition:transform .35s;
+}
+.skill-card:hover{border-color:var(--border-s);transform:translateY(-4px);box-shadow:0 12px 40px rgba(212,168,67,.12);}
+.skill-card:hover::before{transform:scaleX(1);}
+.skill-card-title{
+  font-family:var(--mono);font-size:.62rem;color:var(--gold);
+  letter-spacing:2.5px;text-transform:uppercase;margin-bottom:1rem;
+}
+.skill-tags{display:flex;flex-wrap:wrap;gap:.45rem;}
+.skill-tag{
+  font-family:var(--sans);font-size:.75rem;color:var(--muted);
+  background:rgba(212,168,67,.06);border:1px solid var(--border);
+  padding:.25rem .65rem;
+}
+
+/* ── Projects ── */
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.5rem;}
+.project-card{
+  background:var(--card);border:1px solid var(--border);
+  padding:2rem;
+  transition:border-color .25s,transform .25s,box-shadow .25s;
+  display:flex;flex-direction:column;gap:1rem;
+  position:relative;overflow:hidden;
+}
+.project-card::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(212,168,67,.04),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.project-card:hover{border-color:var(--gold);transform:translateY(-5px);box-shadow:0 16px 50px rgba(212,168,67,.14);}
+.project-card:hover::after{opacity:1;}
+.project-num{font-family:var(--mono);font-size:.6rem;color:rgba(212,168,67,.3);letter-spacing:2px;}
+.project-name{font-family:var(--serif);font-size:1.4rem;font-weight:600;color:var(--text);}
+.project-badges{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.35rem;}
+.proj-badge{
+  font-family:var(--mono);font-size:.57rem;color:var(--muted);
+  background:rgba(212,168,67,.05);border:1px solid var(--border);
+  padding:.15rem .52rem;
+}
+.project-desc{font-size:.85rem;color:var(--muted);line-height:1.78;flex:1;font-weight:300;}
+.project-tech{display:flex;flex-wrap:wrap;gap:.4rem;}
+.tech-tag{
+  font-family:var(--mono);font-size:.6rem;color:var(--gold);
+  border:1px solid rgba(212,168,67,.3);padding:.2rem .55rem;
+  background:rgba(212,168,67,.05);
+}
+.project-actions{display:flex;gap:.75rem;padding-top:.5rem;position:relative;z-index:2;}
+.proj-btn{
+  font-family:var(--mono);font-size:.62rem;
+  padding:.45rem 1.1rem;letter-spacing:1.5px;text-transform:uppercase;
+  text-decoration:none;transition:all .2s;display:inline-block;
+}
+.proj-btn-outline{border:1px solid var(--border-s);color:var(--muted);}
+.proj-btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+.proj-btn-solid{
+  background:linear-gradient(135deg,var(--gold-dk),var(--gold-lt));
+  color:#080808;font-weight:700;
+}
+.proj-btn-solid:hover{opacity:.85;transform:translateY(-1px);}
+
+/* ── Experience ── */
+.exp-list{display:flex;flex-direction:column;}
+.exp-item{
+  display:grid;grid-template-columns:220px 1fr;
+  gap:3rem;padding:2.5rem 0;
+  border-top:1px solid var(--border);transition:background .2s;
+}
+.exp-item:hover{background:rgba(212,168,67,.02);}
+.exp-company{font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--text);}
+.exp-period{font-family:var(--mono);font-size:.62rem;color:var(--muted);margin-top:.3rem;letter-spacing:1px;}
+.exp-role{font-family:var(--mono);font-size:.64rem;color:var(--gold);margin-bottom:.75rem;letter-spacing:1.5px;}
+.exp-desc{font-size:.88rem;color:var(--muted);line-height:1.82;font-weight:300;}
+
+/* ── Certs ── */
+.certs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem;}
+.cert-card{
+  background:var(--card);border:1px solid var(--border);
+  padding:1.5rem 1.75rem;
+  transition:border-color .25s,box-shadow .25s;
+  position:relative;overflow:hidden;
+}
+.cert-card::before{
+  content:'';position:absolute;top:0;left:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,var(--gold-lt),var(--gold-dk));
+  opacity:0;transition:opacity .25s;
+}
+.cert-card:hover{border-color:var(--border-s);box-shadow:0 8px 28px rgba(212,168,67,.1);}
+.cert-card:hover::before{opacity:1;}
+.cert-org{font-family:var(--mono);font-size:.6rem;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem;}
+.cert-name{font-size:.9rem;font-weight:500;color:var(--text);line-height:1.35;margin-bottom:.5rem;}
+.cert-date{font-family:var(--mono);font-size:.6rem;color:var(--muted);}
+
+/* ── About stat box ── */
+.stat-box{background:var(--card);border:1px solid var(--border);padding:2rem;}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:.82rem 0;border-bottom:1px solid var(--border);}
+.stat-row:last-child{border-bottom:none;}
+.stat-label{font-family:var(--mono);font-size:.63rem;color:var(--muted);letter-spacing:1px;}
+.stat-value{font-size:.85rem;color:var(--text);font-weight:500;}
+.stat-value.gold{color:var(--gold);font-weight:600;}
+
+/* ── Contact ── */
+#contact{text-align:center;}
+.contact-links{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin-top:2.5rem;}
+.contact-link{
+  font-family:var(--mono);font-size:.64rem;color:var(--muted);
+  text-decoration:none;border:1px solid var(--border);
+  padding:.75rem 1.75rem;letter-spacing:2px;text-transform:uppercase;
+  transition:all .2s;display:flex;align-items:center;gap:.6rem;
+}
+.contact-link:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);}
+
+/* ── Footer ── */
+footer{
+  text-align:center;padding:2.5rem 4rem;
+  border-top:1px solid var(--border);
+  font-family:var(--mono);font-size:.62rem;color:var(--muted);letter-spacing:1px;
+}
+footer span{color:var(--gold);}
+
+/* ── Scroll fade-in ── */
+.fi{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease;}
+.fi.on{opacity:1;transform:none;}
+
+/* ── Responsive ── */
+@media(max-width:900px){
+  nav{padding:1rem 1.5rem;}
+  #hero{padding:7rem 1.5rem 3rem;}
+  section{padding:4rem 1.5rem;}
+  .trophy-banner{margin:2rem 1.5rem 0;padding:1rem 1.25rem;}
+  .dw{padding:0 1.5rem;}
+  .exp-item{grid-template-columns:1fr;gap:.5rem;}
+  h1{letter-spacing:-1px;}
+  .gear-widget{right:.75rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- Animated background canvas -->
+<canvas id="bg-canvas"></canvas>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ══════════════════════════
+     GEAR SHIFTER NAVIGATION
+══════════════════════════ -->
+<div class="gear-widget" id="gearWidget">
+  <div class="gear-gate" id="gearGate">
+
+    <!-- Gear positions: left/right of the vertical shaft -->
+    <div class="gear-pos left active" data-target="hero" data-gear="1" style="margin-bottom:2px;">
+      <div class="gear-dot"><span>1</span></div>
+      <div class="gear-label">Home</div>
+    </div>
+
+    <div class="gear-pos right" data-target="about" data-gear="2" style="margin-bottom:2px;">
+      <div class="gear-dot"><span>2</span></div>
+      <div class="gear-label">About</div>
+    </div>
+
+    <div class="gear-pos left" data-target="skills" data-gear="3" style="margin-bottom:2px;">
+      <div class="gear-dot"><span>3</span></div>
+      <div class="gear-label">Skills</div>
+    </div>
+
+    <div class="gear-pos right" data-target="projects" data-gear="4" style="margin-bottom:2px;">
+      <div class="gear-dot"><span>4</span></div>
+      <div class="gear-label">Projects</div>
+    </div>
+
+    <div class="gear-pos left" data-target="experience" data-gear="5" style="margin-bottom:2px;">
+      <div class="gear-dot"><span>5</span></div>
+      <div class="gear-label">Work</div>
+    </div>
+
+    <div class="gear-pos right gear-r" data-target="contact" data-gear="R">
+      <div class="gear-dot"><span>R</span></div>
+      <div class="gear-label">Contact</div>
+    </div>
+
+    <!-- Animated stick ball -->
+    <div class="gear-stick" id="gearStick"></div>
+  </div>
+</div>
+
+<!-- ── Nav ── -->
+<nav>
+  <div class="nav-logo">AZS <span>✦</span></div>
+</nav>
+
+<!-- ── Hero ── -->
+<div id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Available for Opportunities</div>
+    <h1>
+      Abrar<br>
+      <span class="gold-word">Zawad</span><br>
+      <span class="italic-word">Safwan</span>
+    </h1>
+    <p class="hero-desc">CS graduate from the University of Calgary — building data-driven web apps, analyzing complex datasets, and turning ideas into polished, user-focused interfaces.</p>
+    <div class="hero-badges">
+      <span class="badge badge-gold">🏆 CalgaryHacks 2026 Winner</span>
+      <span class="badge badge-dim">Dean's List 2024–2025</span>
+      <span class="badge badge-dim">Full Stack Developer</span>
+      <span class="badge badge-dim">Data Analytics</span>
+    </div>
+    <div class="hero-cta">
+      <a href="#projects" class="btn btn-gold">View Projects</a>
+      <a href="mailto:zawadsafwan.work@gmail.com" class="btn btn-outline">Get In Touch</a>
+    </div>
+  </div>
+</div>
+
+<!-- Trophy -->
+<div class="trophy-banner fi">
+  <div class="trophy-icon">🏆</div>
+  <div class="trophy-text">
+    <h3>CalgaryHacks 2026 — Winner</h3>
+    <p>Awarded first place at Calgary's premier student hackathon — built an innovative solution in under 24 hours.</p>
+  </div>
+</div>
+
+<div class="dw" style="margin-top:4rem;"><div class="div-line"></div></div>
+
+<!-- ── About ── -->
+<section id="about">
+  <div class="section-label fi">01 — About</div>
+  <div class="section-title fi">Who I <strong>Am</strong></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;">
+    <div class="fi">
+      <p style="font-size:.95rem;color:var(--muted);line-height:1.95;margin-bottom:1.5rem;font-weight:300;">
+        I'm a Computer Science graduate from the University of Calgary (Dec 2025), specializing in data analytics and front-end web development. I thrive at the intersection of code and creativity — turning raw data into actionable insights and building interfaces people enjoy using.
+      </p>
+      <p style="font-size:.95rem;color:var(--muted);line-height:1.95;font-weight:300;">
+        I won CalgaryHacks 2026 and made the Dean's List — proof that I love pushing myself to solve hard problems. I believe great software is about precision, care, and the details nobody notices until they're missing.
+      </p>
+    </div>
+    <div class="stat-box fi">
+      <div style="font-family:var(--mono);font-size:.6rem;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:1.25rem;">Quick Facts</div>
+      <div class="stat-row"><span class="stat-label">Degree</span><span class="stat-value">BSc Computer Science</span></div>
+      <div class="stat-row"><span class="stat-label">University</span><span class="stat-value">University of Calgary</span></div>
+      <div class="stat-row"><span class="stat-label">Location</span><span class="stat-value">Calgary, AB 🇨🇦</span></div>
+      <div class="stat-row"><span class="stat-label">Dean's List</span><span class="stat-value gold">2024–2025 ✓</span></div>
+      <div class="stat-row"><span class="stat-label">Hackathon</span><span class="stat-value gold">CalgaryHacks 2026 🏆</span></div>
+      <div class="stat-row"><span class="stat-label">GitHub</span><span class="stat-value"><a href="https://github.com/zawadsafwan07" target="_blank" style="color:var(--gold);text-decoration:none;">zawadsafwan07</a></span></div>
+    </div>
+  </div>
+</section>
+<div class="dw"><div class="div-line"></div></div>
+
+<!-- ── Skills ── -->
+<section id="skills">
+  <div class="section-label fi">02 — Skills</div>
+  <div class="section-title fi">Technical <strong>Arsenal</strong></div>
+  <div class="skills-grid">
+    <div class="skill-card fi">
+      <div class="skill-card-title">Languages</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Python</span><span class="skill-tag">JavaScript</span><span class="skill-tag">SQL</span>
+        <span class="skill-tag">Java</span><span class="skill-tag">C / C++</span><span class="skill-tag">HTML & CSS</span>
+        <span class="skill-tag">Assembly</span><span class="skill-tag">Shell Script</span><span class="skill-tag">Prolog</span>
+      </div>
+    </div>
+    <div class="skill-card fi">
+      <div class="skill-card-title">Frameworks & Libraries</div>
+      <div class="skill-tags">
+        <span class="skill-tag">React JS</span><span class="skill-tag">Java-FX</span><span class="skill-tag">Firebase</span>
+        <span class="skill-tag">MySQL</span><span class="skill-tag">J-Unit</span><span class="skill-tag">WebSocket</span>
+      </div>
+    </div>
+    <div class="skill-card fi">
+      <div class="skill-card-title">Data & Analytics</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Tableau</span><span class="skill-tag">Excel</span><span class="skill-tag">Power BI</span>
+        <span class="skill-tag">Data Validation</span><span class="skill-tag">Chart Analysis</span><span class="skill-tag">AI / ML</span>
+      </div>
+    </div>
+    <div class="skill-card fi">
+      <div class="skill-card-title">Tools & Platforms</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Figma</span><span class="skill-tag">Linux</span><span class="skill-tag">Raspberry Pi</span>
+        <span class="skill-tag">Office 365</span><span class="skill-tag">Git & GitHub</span><span class="skill-tag">UI/UX</span>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="dw"><div class="div-line"></div></div>
+
+<!-- ── Projects ── -->
+<section id="projects">
+  <div class="section-label fi">03 — Projects</div>
+  <div class="section-title fi">What I've <strong>Built</strong></div>
+  <div class="projects-grid">
+
+    <div class="project-card fi">
+      <div class="project-num">001</div>
+      <div><div class="project-name">Swift-Trek</div>
+        <div class="project-badges"><span class="proj-badge">Full-Stack</span><span class="proj-badge">Real-time Data</span><span class="proj-badge">Authentication</span></div>
+      </div>
+      <div class="project-desc">Full-stack travel platform using Firebase for real-time data, cloud storage, and authentication. Developed an interactive messaging system and dynamic React.js components with user-centered Figma prototypes.</div>
+      <div class="project-tech"><span class="tech-tag">React.js</span><span class="tech-tag">Firebase</span><span class="tech-tag">HTML</span><span class="tech-tag">CSS</span><span class="tech-tag">JavaScript</span></div>
+      <div class="project-actions">
+        <a href="https://github.com/zawadsafwan07" target="_blank" class="proj-btn proj-btn-outline">View Code</a>
+        <a href="#" class="proj-btn proj-btn-solid">Live Demo</a>
+      </div>
+    </div>
+
+    <div class="project-card fi">
+      <div class="project-num">002</div>
+      <div><div class="project-name">The Grocery Analyzer</div>
+        <div class="project-badges"><span class="proj-badge">Budget Optimizer</span><span class="proj-badge">Price Analysis</span><span class="proj-badge">Charts</span></div>
+      </div>
+      <div class="project-desc">Developed a React and MySQL app that helps students optimize grocery budgets by analyzing local price data. Used Excel for Data Cleaning and Chart Analysis to make Data-Driven Decisions.</div>
+      <div class="project-tech"><span class="tech-tag">React</span><span class="tech-tag">MySQL</span><span class="tech-tag">Excel</span><span class="tech-tag">Data Analysis</span></div>
+      <div class="project-actions">
+        <a href="https://github.com/zawadsafwan07" target="_blank" class="proj-btn proj-btn-outline">View Code</a>
+        <a href="#" class="proj-btn proj-btn-solid">Live Demo</a>
+      </div>
+    </div>
+
+    <div class="project-card fi">
+      <div class="project-num">003</div>
+      <div><div class="project-name">Self-Checkout Station</div>
+        <div class="project-badges"><span class="proj-badge">Team of 25</span><span class="proj-badge">JavaFX UI</span><span class="proj-badge">J-Unit Testing</span></div>
+      </div>
+      <div class="project-desc">Collaborated with a team of 25 students to design and develop an ordering system for customers at a grocery store. Used J-Unit Testing to ensure completeness and JavaFX for optimized front-end performance.</div>
+      <div class="project-tech"><span class="tech-tag">Java</span><span class="tech-tag">JavaFX</span><span class="tech-tag">J-Unit</span><span class="tech-tag">Team Coordination</span></div>
+      <div class="project-actions">
+        <a href="https://github.com/zawadsafwan07" target="_blank" class="proj-btn proj-btn-outline">View Code</a>
+        <a href="#" class="proj-btn proj-btn-solid">Live Demo</a>
+      </div>
+    </div>
+
+    <div class="project-card fi">
+      <div class="project-num">004</div>
+      <div><div class="project-name">Data Analysis Pipeline</div>
+        <div class="project-badges"><span class="proj-badge">Team of 5</span><span class="proj-badge">Databases</span><span class="proj-badge">Statistical Analysis</span></div>
+      </div>
+      <div class="project-desc">Collaborated with a team of 5 to analyze used car data, helping dealers make data-driven purchasing decisions. Performed data cleaning across 3 databases and created visualizations for mileage, pricing, and more.</div>
+      <div class="project-tech"><span class="tech-tag">Python</span><span class="tech-tag">Data Analysis</span><span class="tech-tag">Data Visualization</span><span class="tech-tag">Statistics</span></div>
+      <div class="project-actions">
+        <a href="https://github.com/zawadsafwan07" target="_blank" class="proj-btn proj-btn-outline">View Code</a>
+        <a href="#" class="proj-btn proj-btn-solid">Live Demo</a>
+      </div>
+    </div>
+
+    <div class="project-card fi">
+      <div class="project-num">005</div>
+      <div><div class="project-name">Raspberry Pi Donkey Kong</div>
+        <div class="project-badges"><span class="proj-badge">From Scratch</span><span class="proj-badge">C Programming</span><span class="proj-badge">Hardware Integration</span></div>
+      </div>
+      <div class="project-desc">Recreated the classic Donkey Kong game on Raspberry Pi using C programming. Designed and programmed the game from scratch, showcasing problem-solving and creative thinking in embedded systems.</div>
+      <div class="project-tech"><span class="tech-tag">C</span><span class="tech-tag">Raspberry Pi</span><span class="tech-tag">Game Development</span><span class="tech-tag">Embedded Systems</span></div>
+      <div class="project-actions">
+        <a href="https://github.com/zawadsafwan07" target="_blank" class="proj-btn proj-btn-outline">View Code</a>
+        <a href="#" class="proj-btn proj-btn-solid">Live Demo</a>
+      </div>
+    </div>
+
+    <div class="project-card fi">
+      <div class="project-num">006</div>
+      <div><div class="project-name">iTravel-Wise</div>
+        <div class="project-badges"><span class="proj-badge">Mobile App</span><span class="proj-badge">HCI Course</span><span class="proj-badge">UX Design</span></div>
+      </div>
+      <div class="project-desc">Mobile app empowering travelers with event exploration, flight booking, and transit routes. Designed and implemented features as part of Human-Computer Interaction course to enhance user experience.</div>
+      <div class="project-tech"><span class="tech-tag">Mobile Development</span><span class="tech-tag">UI/UX</span><span class="tech-tag">HCI</span><span class="tech-tag">Figma</span></div>
+      <div class="project-actions">
+        <a href="https://github.com/zawadsafwan07" target="_blank" class="proj-btn proj-btn-outline">View Code</a>
+        <a href="#" class="proj-btn proj-btn-solid">Live Demo</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+<div class="dw"><div class="div-line"></div></div>
+
+<!-- ── Experience ── -->
+<section id="experience">
+  <div class="section-label fi">04 — Experience</div>
+  <div class="section-title fi">Where I've <strong>Worked</strong></div>
+  <div class="exp-list">
+    <div class="exp-item fi">
+      <div><div class="exp-company">Telus Digital</div><div class="exp-period">Oct 2025 — Present</div></div>
+      <div>
+        <div class="exp-role">ONLINE DATA ANALYST</div>
+        <div class="exp-desc">Performed data validation, quality assurance, and analysis to improve the accuracy and reliability of AI-driven digital mapping and geolocation systems. Demonstrated strong attention to detail and customer service focus.</div>
+      </div>
+    </div>
+    <div class="exp-item fi">
+      <div><div class="exp-company">UofC — Minds in Motion</div><div class="exp-period">Apr 2025 — Aug 2025</div></div>
+      <div>
+        <div class="exp-role">GAMING MINDS CAMP INSTRUCTOR</div>
+        <div class="exp-desc">Delivered coding and game design instruction to Grades 5–9 students using Scratch, Microsoft MakeCode, and pixel art, while integrating foundational cybersecurity principles. Cultivated teamwork and problem-solving skills through collaborative projects.</div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="dw"><div class="div-line"></div></div>
+
+<!-- ── Certs ── -->
+<section id="certs">
+  <div class="section-label fi">05 — Certifications</div>
+  <div class="section-title fi"><strong>Credentials</strong> & Awards</div>
+  <div class="certs-grid">
+    <div class="cert-card fi"><div class="cert-org">Deloitte Australia</div><div class="cert-name">Data Analytics Job Simulation</div><div class="cert-date">January 2026 · Forage</div></div>
+    <div class="cert-card fi"><div class="cert-org">Deloitte Australia</div><div class="cert-name">Cybersecurity Job Simulation</div><div class="cert-date">January 2026 · Forage</div></div>
+    <div class="cert-card fi"><div class="cert-org">Deloitte Australia</div><div class="cert-name">Technology Job Simulation</div><div class="cert-date">January 2026 · Forage</div></div>
+    <div class="cert-card fi"><div class="cert-org">Mastercard IT</div><div class="cert-name">Cybersecurity Job Simulation</div><div class="cert-date">January 2026 · Forage</div></div>
+    <div class="cert-card fi"><div class="cert-org">Electronic Arts</div><div class="cert-name">Product Management Job Simulation</div><div class="cert-date">January 2026 · Forage</div></div>
+  </div>
+</section>
+<div class="dw"><div class="div-line"></div></div>
+
+<!-- ── Contact ── -->
+<section id="contact">
+  <div class="section-label fi" style="text-align:center;">06 — Contact</div>
+  <div class="section-title fi" style="text-align:center;">Let's <strong>Connect</strong></div>
+  <p class="fi" style="font-size:.95rem;color:var(--muted);text-align:center;max-width:460px;margin:0 auto;line-height:1.88;font-weight:300;">
+    Open to data analytics, front-end, and full-stack opportunities. Let's build something remarkable together.
+  </p>
+  <div class="contact-links fi">
+    <a href="mailto:zawadsafwan.work@gmail.com" class="contact-link">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Email
+    </a>
+    <a href="https://linkedin.com/in/abrar-zawad-safwan" target="_blank" class="contact-link">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn
+    </a>
+    <a href="https://github.com/zawadsafwan07" target="_blank" class="contact-link">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>GitHub
+    </a>
+    <a href="tel:+18255614612" class="contact-link">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.07 1.18 2 2 0 012.04 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.08 6.08l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>+1 825 561 4612
+    </a>
+  </div>
+</section>
+
+<footer>
+  <span>✦</span> 2026 Abrar Zawad Safwan — Crafted with precision in Calgary, AB <span>✦</span>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════
+   BACKGROUND — Flowing gold particles & lines
+   No grids, no squares — organic motion
+═══════════════════════════════════════════ */
+(function(){
+  const c = document.getElementById('bg-canvas');
+  const x = c.getContext('2d');
+  let W, H, pts=[], tick=0;
+
+  const GOLD = 'rgba(212,168,67,';
+  const NUM  = 55;
+
+  function resize(){
+    W = c.width  = window.innerWidth;
+    H = c.height = window.innerHeight;
+    init();
+  }
+
+  function init(){
+    pts = [];
+    for(let i=0;i<NUM;i++){
+      pts.push({
+        x: Math.random()*W,
+        y: Math.random()*H,
+        vx:(Math.random()-.5)*0.35,
+        vy:(Math.random()-.5)*0.35,
+        r: Math.random()*2+1,
+        a: Math.random()*Math.PI*2,
+        pulse: Math.random()*Math.PI*2,
+      });
+    }
+  }
+
+  function frame(){
+    x.clearRect(0,0,W,H);
+
+    tick+=0.008;
+
+    /* Ambient radial glow — drifting */
+    const gx = W*.5 + Math.cos(tick*.4)*W*.18;
+    const gy = H*.4 + Math.sin(tick*.3)*H*.15;
+    const gr = x.createRadialGradient(gx,gy,0,gx,gy,W*.55);
+    gr.addColorStop(0,GOLD+'0.06)');
+    gr.addColorStop(1,GOLD+'0)');
+    x.fillStyle=gr;
+    x.fillRect(0,0,W,H);
+
+    /* Second glow opposite side */
+    const gx2=W*.8+Math.sin(tick*.5)*W*.12;
+    const gy2=H*.7+Math.cos(tick*.4)*H*.12;
+    const gr2=x.createRadialGradient(gx2,gy2,0,gx2,gy2,W*.3);
+    gr2.addColorStop(0,GOLD+'0.04)');
+    gr2.addColorStop(1,GOLD+'0)');
+    x.fillStyle=gr2;
+    x.fillRect(0,0,W,H);
+
+    /* Move & draw particles */
+    pts.forEach(p=>{
+      p.x += p.vx + Math.cos(p.a+tick)*0.2;
+      p.y += p.vy + Math.sin(p.a+tick*0.7)*0.2;
+      p.pulse += 0.04;
+      // wrap
+      if(p.x<-20) p.x=W+20;
+      if(p.x>W+20) p.x=-20;
+      if(p.y<-20) p.y=H+20;
+      if(p.y>H+20) p.y=-20;
+
+      const brightness = 0.25+Math.sin(p.pulse)*0.25;
+      x.beginPath();
+      x.arc(p.x,p.y,p.r*(0.8+Math.sin(p.pulse)*0.4),0,Math.PI*2);
+      x.fillStyle=GOLD+brightness+')';
+      x.fill();
+    });
+
+    /* Connecting lines between nearby particles */
+    for(let i=0;i<pts.length;i++){
+      for(let j=i+1;j<pts.length;j++){
+        const dx=pts[i].x-pts[j].x;
+        const dy=pts[i].y-pts[j].y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<140){
+          const a=(1-dist/140)*0.18;
+          x.beginPath();
+          x.moveTo(pts[i].x,pts[i].y);
+          x.lineTo(pts[j].x,pts[j].y);
+          x.strokeStyle=GOLD+a+')';
+          x.lineWidth=0.8;
+          x.stroke();
+        }
+      }
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  window.addEventListener('resize',resize);
+  resize();
+  frame();
+})();
+
+
+/* ═══════════════════════════════════════════
+   GEAR SHIFTER NAVIGATION
+═══════════════════════════════════════════ */
+(function(){
+  const positions = document.querySelectorAll('.gear-pos');
+  const stick     = document.getElementById('gearStick');
+  const gate      = document.getElementById('gearGate');
+
+  /* Map each gear to its section */
+  const sectionMap = {
+    '1':'hero','2':'about','3':'skills',
+    '4':'projects','5':'experience','R':'contact'
+  };
+
+  /* Build array of {el, dot} for positioning */
+  const gearData = Array.from(positions).map(el=>{
+    return { el, dot: el.querySelector('.gear-dot'), gear: el.dataset.gear };
+  });
+
+  function getDotCenter(dot){
+    const gr = gate.getBoundingClientRect();
+    const dr = dot.getBoundingClientRect();
+    return {
+      x: dr.left + dr.width/2  - gr.left,
+      y: dr.top  + dr.height/2 - gr.top,
+    };
+  }
+
+  function moveStickTo(dot){
+    const c = getDotCenter(dot);
+    stick.style.left = c.x + 'px';
+    stick.style.top  = c.y + 'px';
+  }
+
+  /* Init stick to gear 1 */
+  // wait a tick for layout
+  setTimeout(()=>{
+    moveStickTo(gearData[0].dot);
+  },50);
+
+  function activate(pos){
+    positions.forEach(p=>p.classList.remove('active'));
+    pos.classList.add('active');
+    moveStickTo(pos.querySelector('.gear-dot'));
+
+    const target = pos.dataset.target;
+    const el = document.getElementById(target);
+    if(el){
+      el.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  }
+
+  positions.forEach(pos=>{
+    pos.addEventListener('click',()=>activate(pos));
+  });
+
+  /* Auto-highlight gear based on scroll position */
+  const sectionOrder = ['hero','about','skills','projects','experience','contact'];
+  const gearForSection = {};
+  positions.forEach(p=>{ gearForSection[p.dataset.target] = p; });
+
+  let scrollRaf = false;
+  window.addEventListener('scroll',()=>{
+    if(scrollRaf) return;
+    scrollRaf = true;
+    requestAnimationFrame(()=>{
+      scrollRaf = false;
+      const scrollY = window.scrollY + window.innerHeight*0.4;
+      let active = sectionOrder[0];
+      sectionOrder.forEach(id=>{
+        const el = document.getElementById(id);
+        if(el && el.offsetTop <= scrollY) active = id;
+      });
+      const activePos = gearForSection[active];
+      if(activePos && !activePos.classList.contains('active')){
+        positions.forEach(p=>p.classList.remove('active'));
+        activePos.classList.add('active');
+        moveStickTo(activePos.querySelector('.gear-dot'));
+      }
+    });
+  });
+})();
+
+
+/* ═══════════════════════════════════════════
+   CUSTOM CURSOR
+═══════════════════════════════════════════ */
+const cur  = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  cur.style.transform=`translate(${mx-5}px,${my-5}px)`;
+});
+(function loop(){
+  rx+=(mx-rx-16)*.13; ry+=(my-ry-16)*.13;
+  ring.style.transform=`translate(${rx}px,${ry}px)`;
+  requestAnimationFrame(loop);
+})();
+document.querySelectorAll('a,button,.gear-pos').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{
+    cur.style.width='5px';cur.style.height='5px';
+    ring.style.width='44px';ring.style.height='44px';
+    ring.style.borderColor='var(--gold-lt)';
+  });
+  el.addEventListener('mouseleave',()=>{
+    cur.style.width='10px';cur.style.height='10px';
+    ring.style.width='32px';ring.style.height='32px';
+    ring.style.borderColor='var(--gold)';
+  });
+});
+
+
+/* ═══════════════════════════════════════════
+   SCROLL FADE-IN
+═══════════════════════════════════════════ */
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('on'); });
+},{threshold:.08});
+document.querySelectorAll('.fi').forEach((el,i)=>{
+  el.style.transitionDelay=`${(i%5)*.07}s`;
+  obs.observe(el);
+});
+</script>
+</body>
+</html>
